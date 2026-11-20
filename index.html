@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>E-Voting Pilketos SMAN 1 Batujajar</title>
+<style>
+  :root{
+    --bg:#f1f5fb; --card:#ffffff; --ink:#13213c; --muted:#5a6a85; --line:#d9e1ef;
+    --primary:#1d4ed8; --primary-d:#1e3a8a; --ok:#15803d; --err:#b91c1c; --info:#92400e;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
+  header{background:linear-gradient(135deg,var(--primary-d),var(--primary));color:#fff;padding:18px 16px;display:flex;gap:14px;align-items:center;justify-content:center}
+  header .logo{font-size:34px;line-height:1}
+  header h1{margin:0;font-size:1.2rem;line-height:1.25}
+  header p{margin:2px 0 0;opacity:.85;font-size:.9rem}
+  main{max-width:1000px;margin:0 auto;padding:20px 14px 110px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:0 4px 18px rgba(19,33,60,.06)}
+  .narrow{max-width:460px;margin:24px auto 0}
+  h2{margin:0 0 6px;font-size:1.25rem}
+  .muted{color:var(--muted);margin:0 0 16px;line-height:1.5}
+  label{display:block;font-weight:600;margin:8px 0 6px}
+  input[type=text]{width:100%;font-size:1.6rem;letter-spacing:.35em;text-align:center;text-transform:uppercase;padding:14px;border:2px solid var(--line);border-radius:12px;font-family:ui-monospace,Menlo,Consolas,monospace}
+  input[type=text]:focus{outline:none;border-color:var(--primary)}
+  .btn{display:inline-block;width:100%;margin-top:14px;padding:14px 18px;font-size:1rem;font-weight:700;color:#fff;background:var(--primary);border:0;border-radius:12px;cursor:pointer}
+  .btn:hover:not(:disabled){background:var(--primary-d)}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .btn.ghost{background:#fff;color:var(--ink);border:2px solid var(--line)}
+  .btn.ghost:hover:not(:disabled){background:#f5f7fb}
+  .alert{margin-top:14px;padding:12px 14px;border-radius:10px;font-size:.95rem;line-height:1.4}
+  .alert.err{background:#fef2f2;color:var(--err);border:1px solid #fecaca}
+  .alert.info{background:#fffbeb;color:var(--info);border:1px solid #fde68a}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:10px}
+  .kartu{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;background:#fff;border:3px solid var(--line);border-radius:16px;padding:16px;cursor:pointer;font:inherit;color:inherit;transition:transform .12s,border-color .12s,box-shadow .12s}
+  .kartu:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(19,33,60,.1)}
+  .kartu[aria-pressed=true]{border-color:var(--primary);background:#eff4ff;box-shadow:0 0 0 4px rgba(29,78,216,.15)}
+  .kartu .nomor{background:var(--primary-d);color:#fff;font-weight:800;border-radius:999px;padding:4px 16px;font-size:1.05rem}
+  .kartu .foto,.kartu .inisial{width:132px;height:132px;border-radius:50%;object-fit:cover;border:4px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+  .kartu .inisial{display:flex;align-items:center;justify-content:center;background:#dbe6ff;color:var(--primary-d);font-size:2.6rem;font-weight:800}
+  .kartu .nama{font-weight:800;font-size:1.1rem}
+  .kartu .teks{width:100%;text-align:left;font-size:.88rem;line-height:1.45;color:#2b3a57;white-space:pre-line}
+  .kartu .teks b{display:block;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.04em;margin-top:6px}
+  .bar{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);padding:12px 14px;display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;z-index:5}
+  .bar .info{font-weight:600;flex:1 1 200px;max-width:420px}
+  .bar .btn{width:auto;margin:0;min-width:150px}
+  .modal{position:fixed;inset:0;background:rgba(10,20,40,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}
+  .modal[hidden],[hidden]{display:none !important}
+  .dialog{background:#fff;border-radius:18px;max-width:440px;width:100%;padding:24px;text-align:center}
+  .dialog h3{margin:0 0 8px;font-size:1.2rem}
+  .dialog .pilihan{font-size:1.25rem;font-weight:800;color:var(--primary-d);margin:10px 0}
+  .dialog .aksi{display:flex;gap:10px;margin-top:6px}
+  .dialog .aksi .btn{margin-top:10px}
+  .terima{text-align:center;max-width:520px;margin:40px auto 0;padding:36px 24px}
+  .centang{width:88px;height:88px;border-radius:50%;background:#dcfce7;color:var(--ok);font-size:3rem;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+  .terima h2{font-size:1.6rem}
+  .kecil{font-size:.85rem;color:var(--muted);margin-top:14px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" aria-hidden="true">🗳️</div>
+  <div>
+    <h1 id="judul">Pemilihan Ketua OSIS</h1>
+    <p>SMAN 1 Batujajar &middot; Langsung, Umum, Bebas, Rahasia, Jujur, Adil</p>
+  </div>
+</header>
+
+<main>
+
+  <section id="layarLogin" class="card narrow">
+    <h2>Masuk untuk memilih</h2>
+    <p class="muted">Masukkan kode pemilih yang Anda terima dari panitia. Satu kode hanya berlaku untuk satu kali memilih.</p>
+    <form id="formLogin" autocomplete="off">
+      <label for="kode">Kode pemilih</label>
+      <input id="kode" type="text" maxlength="12" inputmode="text" autocapitalize="characters" spellcheck="false" placeholder="••••••••" aria-describedby="pesanLogin">
+      <button id="btnMasuk" class="btn" type="submit">Masuk</button>
+    </form>
+    <div id="pesanLogin" class="alert err" role="alert" hidden></div>
+  </section>
+
+  <section id="layarPilih" hidden>
+    <div class="card">
+      <h2>Pilih satu kandidat</h2>
+      <p class="muted">Ketuk salah satu kartu, lalu tekan tombol <b>Pilih</b>. Anda hanya bisa memilih satu kali dan pilihan tidak dapat diubah setelah dikirim.</p>
+      <div id="grid" class="grid"></div>
+    </div>
+    <div class="bar">
+      <span id="infoPilihan" class="info">Belum ada pilihan</span>
+      <button id="btnKeluar" class="btn ghost" type="button">Keluar</button>
+      <button id="btnPilih" class="btn" type="button" disabled>Pilih</button>
+    </div>
+  </section>
+
+  <section id="layarTerimaKasih" class="card terima" hidden>
+    <div class="centang" aria-hidden="true">✓</div>
+    <h2>Terima kasih telah memilih!</h2>
+    <p class="muted">Suara Anda sudah tersimpan dengan aman dan dirahasiakan.</p>
+    <button id="btnSelesai" class="btn" type="button">Selesai</button>
+    <p class="kecil">Halaman akan kembali otomatis dalam <span id="hitung">10</span> detik.</p>
+  </section>
+
+</main>
+
+<div id="modal" class="modal" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="modalJudul">
+    <h3 id="modalJudul">Yakin dengan pilihan Anda?</h3>
+    <div id="modalPilihan" class="pilihan"></div>
+    <p class="muted" style="margin-bottom:6px">Pilihan tidak dapat diubah setelah dikirim.</p>
+    <div id="modalErr" class="alert err" role="alert" hidden></div>
+    <div class="aksi">
+      <button id="btnBatal" class="btn ghost" type="button">Kembali</button>
+      <button id="btnKirim" class="btn" type="button">Ya, kirim suara</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Alamat backend (Apps Script Web App). Ganti kalau deploy ulang dan linknya berubah. */
+var API_URL = 'https://script.google.com/macros/s/AKfycbxTQFVviBO4VmSZHMUDJNpcnshJZS3p9yBacpM5UYSuSYBl4n-LW1IG99GlwOgK2q0Z/exec';
+
+/* Pengganti google.script.run: memanggil Apps Script lewat fetch. */
+(function () {
+  function api(fn, args) {
+    return fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ fn: fn, args: args }),
+      redirect: 'follow'
+    }).then(function (r) { return r.json(); });
+  }
+  function runner(ok, fail) {
+    return new Proxy({}, {
+      get: function (t, name) {
+        if (name === 'withSuccessHandler') return function (f) { return runner(f, fail); };
+        if (name === 'withFailureHandler') return function (f) { return runner(ok, f); };
+        return function () {
+          var args = Array.prototype.slice.call(arguments);
+          api(name, args).then(function (r) { if (ok) ok(r); })
+            .catch(function (e) { console.error(e); if (fail) fail(e); });
+        };
+      }
+    });
+  }
+  window.google = { script: { run: runner() } };
+})();
+</script>
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+  var LAYAR = ['layarLogin', 'layarPilih', 'layarTerimaKasih'];
+  var BATAS_DIAM_MS = 180000;
+  var DETIK_KEMBALI = 10;
+
+  var kode = '', daftar = [], dipilih = null, timerDiam = null, timerHitung = null;
+
+  function tampil(id) {
+    LAYAR.forEach(function (x) { $(x).hidden = (x !== id); });
+    window.scrollTo(0, 0);
+  }
+  function pesan(elm, teks, tipe) {
+    elm.textContent = teks || '';
+    elm.className = 'alert ' + (tipe || 'err');
+    elm.hidden = !teks;
+  }
+  function bersih(s) { return String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, ''); }
+  function h(tag, cls, teks) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (teks !== undefined) e.textContent = teks;
+    return e;
+  }
+  function inisial(nama) {
+    var p = String(nama).trim().split(/\s+/);
+    return ((p[0] || '').charAt(0) + (p.length > 1 ? p[1].charAt(0) : '')).toUpperCase();
+  }
+
+  google.script.run
+    .withSuccessHandler(function (info) {
+      if (info && info.judul) $('judul').textContent = info.judul;
+      if (info && !info.buka) pesan($('pesanLogin'), 'Pemilihan belum dibuka atau sudah ditutup.', 'info');
+    })
+    .getInfo();
+
+  $('kode').addEventListener('input', function () {
+    this.value = bersih(this.value).slice(0, 8);
+  });
+
+  $('formLogin').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = bersih($('kode').value);
+    if (input.length !== 8) { pesan($('pesanLogin'), 'Kode terdiri dari 8 karakter huruf/angka.'); return; }
+    pesan($('pesanLogin'), '');
+    var btn = $('btnMasuk');
+    btn.disabled = true; btn.textContent = 'Memeriksa…';
+
+    google.script.run
+      .withSuccessHandler(function (res) {
+        btn.disabled = false; btn.textContent = 'Masuk';
+        if (!res || !res.ok) { pesan($('pesanLogin'), (res && res.pesan) || 'Gagal masuk.'); return; }
+        kode = input; daftar = res.kandidat; dipilih = null;
+        $('kode').value = '';
+        render(); perbaruiBar();
+        tampil('layarPilih');
+        mulaiDiam();
+      })
+      .withFailureHandler(function () {
+        btn.disabled = false; btn.textContent = 'Masuk';
+        pesan($('pesanLogin'), 'Koneksi bermasalah. Periksa internet lalu coba lagi.');
+      })
+      .login(input);
+  });
+
+  function render() {
+    var g = $('grid');
+    g.textContent = '';
+    daftar.forEach(function (k) {
+      var b = h('button', 'kartu');
+      b.type = 'button';
+      b.setAttribute('aria-pressed', 'false');
+      b.dataset.nomor = k.nomor;
+
+      b.appendChild(h('div', 'nomor', 'No. ' + k.nomor));
+
+      var fallback = h('div', 'inisial', inisial(k.nama));
+      if (k.foto) {
+        var img = document.createElement('img');
+        img.className = 'foto';
+        img.alt = 'Foto ' + k.nama;
+        img.referrerPolicy = 'no-referrer';
+        img.onerror = function () { if (img.parentNode) img.parentNode.replaceChild(fallback, img); };
+        img.src = k.foto;
+        b.appendChild(img);
+      } else {
+        b.appendChild(fallback);
+      }
+
+      b.appendChild(h('div', 'nama', k.nama));
+      var t = h('div', 'teks');
+      if (k.visi) { t.appendChild(h('b', '', 'Visi')); t.appendChild(document.createTextNode(k.visi)); }
+      if (k.misi) { t.appendChild(h('b', '', 'Misi')); t.appendChild(document.createTextNode(k.misi)); }
+      b.appendChild(t);
+
+      b.addEventListener('click', function () {
+        dipilih = k;
+        Array.prototype.forEach.call(g.children, function (c) {
+          c.setAttribute('aria-pressed', String(Number(c.dataset.nomor) === k.nomor));
+        });
+        perbaruiBar();
+      });
+      g.appendChild(b);
+    });
+  }
+
+  function perbaruiBar() {
+    $('infoPilihan').textContent = dipilih ? ('Pilihan: No. ' + dipilih.nomor + ' – ' + dipilih.nama) : 'Belum ada pilihan';
+    $('btnPilih').disabled = !dipilih;
+  }
+
+  $('btnPilih').addEventListener('click', function () {
+    if (!dipilih) return;
+    $('modalPilihan').textContent = 'No. ' + dipilih.nomor + ' – ' + dipilih.nama;
+    pesan($('modalErr'), '');
+    $('modal').hidden = false;
+  });
+  $('btnBatal').addEventListener('click', function () { $('modal').hidden = true; });
+
+  $('btnKirim').addEventListener('click', function () {
+    if (!dipilih) return;
+    var btn = $('btnKirim'), batal = $('btnBatal');
+    btn.disabled = true; batal.disabled = true; btn.textContent = 'Mengirim…';
+    pesan($('modalErr'), '');
+
+    google.script.run
+      .withSuccessHandler(function (res) {
+        btn.disabled = false; batal.disabled = false; btn.textContent = 'Ya, kirim suara';
+        if (res && res.ok) {
+          $('modal').hidden = true;
+          selesaiMemilih();
+          return;
+        }
+        if (res && res.fatal) {
+          $('modal').hidden = true;
+          keLogin(res.pesan);
+          return;
+        }
+        pesan($('modalErr'), (res && res.pesan) || 'Gagal mengirim suara. Coba lagi.');
+      })
+      .withFailureHandler(function () {
+        btn.disabled = false; batal.disabled = false; btn.textContent = 'Ya, kirim suara';
+        pesan($('modalErr'), 'Koneksi bermasalah. Tekan "Ya, kirim suara" lagi. Jika muncul pesan kode sudah digunakan, hubungi panitia.');
+      })
+      .kirimSuara(kode, dipilih.nomor);
+  });
+
+  function selesaiMemilih() {
+    kode = ''; daftar = []; dipilih = null;
+    $('grid').textContent = '';
+    hentikanDiam();
+    tampil('layarTerimaKasih');
+    var sisa = DETIK_KEMBALI;
+    $('hitung').textContent = sisa;
+    clearInterval(timerHitung);
+    timerHitung = setInterval(function () {
+      sisa--;
+      $('hitung').textContent = sisa;
+      if (sisa <= 0) keLogin();
+    }, 1000);
+  }
+
+  function keLogin(teks) {
+    clearInterval(timerHitung);
+    hentikanDiam();
+    kode = ''; daftar = []; dipilih = null;
+    $('grid').textContent = '';
+    $('modal').hidden = true;
+    pesan($('pesanLogin'), teks || '', 'err');
+    tampil('layarLogin');
+    $('kode').focus();
+  }
+
+  $('btnSelesai').addEventListener('click', function () { keLogin(); });
+  $('btnKeluar').addEventListener('click', function () { keLogin(); });
+
+  function mulaiDiam() {
+    hentikanDiam();
+    timerDiam = setTimeout(function () {
+      keLogin('Sesi berakhir karena tidak ada aktivitas. Silakan masuk kembali.');
+    }, BATAS_DIAM_MS);
+  }
+  function hentikanDiam() { clearTimeout(timerDiam); timerDiam = null; }
+  ['pointerdown', 'keydown', 'scroll'].forEach(function (ev) {
+    document.addEventListener(ev, function () { if (!$('layarPilih').hidden) mulaiDiam(); }, { passive: true });
+  });
+})();
+</script>
+</body>
+</html>
